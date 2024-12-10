@@ -1,78 +1,22 @@
 <!DOCTYPE html>
-<html lang="he">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>ניהול הכנסות והוצאות</title>
-    <style>
-        body { font-family: Arial, sans-serif; direction: rtl; }
-        .container { max-width: 600px; margin: auto; padding: 20px; }
-        input, button { margin: 5px 0; }
-    </style>
+    <title>PDF Viewer</title>
 </head>
 <body>
-    <div class="container">
-        <h1>ניהול הכנסות והוצאות</h1>
-        <label for="type">סוג:</label>
-        <select id="type">
-            <option value="income">הכנסה</option>
-            <option value="expense">הוצאה</option>
-        </select>
-        <br>
-        <label for="amount">סכום:</label>
-        <input type="number" id="amount">
-        <br>
-        <label for="date">תאריך:</label>
-        <input type="date" id="date">
-        <br>
-        <button onclick="addEntry()">הוסף</button>
-        <h2>רשימת הכנסות והוצאות</h2>
-        <ul id="entries"></ul>
-        <button onclick="generatePDF()">צור דוח PDF</button>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.13/jspdf.plugin.autotable.min.js"></script>
+    <input type="file" id="fileInput" />
+    <iframe id="pdfViewer" width="600" height="500"></iframe>
+
     <script>
-        const entries = [];
-
-        function addEntry() {
-            const type = document.getElementById('type').value;
-            const amount = document.getElementById('amount').value;
-            const date = document.getElementById('date').value;
-
-            if (amount && date) {
-                entries.push({ type, amount, date });
-                displayEntries();
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file.type === 'application/pdf') {
+                const fileURL = URL.createObjectURL(file);
+                document.getElementById('pdfViewer').src = fileURL;
             } else {
-                alert('אנא מלא את כל השדות');
+                alert('Please select a PDF file.');
             }
-        }
-
-        function displayEntries() {
-            const entriesList = document.getElementById('entries');
-            entriesList.innerHTML = '';
-            entries.forEach(entry => {
-                const listItem = document.createElement('li');
-                listItem.textContent = `${entry.date} - ${entry.type === 'income' ? 'הכנסה' : 'הוצאה'}: ₪${entry.amount}`;
-                entriesList.appendChild(listItem);
-            });
-        }
-
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            doc.text('דוח הכנסות והוצאות', 10, 10);
-            doc.autoTable({
-                head: [['תאריך', 'סוג', 'סכום']],
-                body: entries.map(entry => [entry.date, entry.type === 'income' ? 'הכנסה' : 'הוצאה', `₪${entry.amount}`]),
-                startY: 20,
-                styles: { font: 'helvetica', fontSize: 12, cellPadding: 3, valign: 'middle', halign: 'center' },
-                headStyles: { fillColor: [22, 160, 133], textColor: [255, 255, 255] },
-                alternateRowStyles: { fillColor: [240, 240, 240] }
-            });
-
-            doc.save('דוח_הכנסות_והוצאות.pdf');
-        }
+        });
     </script>
 </body>
 </html>
